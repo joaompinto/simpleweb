@@ -1,4 +1,5 @@
 import cherrypy
+import re
 root = None
 
 def add_static_dir(application, static_dir, dir_name):
@@ -23,17 +24,22 @@ def publish(func=None, *args):
     return cherrypy.expose(func, *args)
 
 
-def get_cookie(name, default=None):
-    return cherrypy.request.cookie.get(name, default)
-
+def get_cookie(name, default_value=None):
+    def unescape(s):
+        m = re.match(r'^"(.*)"$', s)
+        s = m.group(1) if m else s
+        return s.replace("\\\\", "\\")
+    if cherrypy.request.cookie.has_key(name):
+        return unescape(cherrypy.request.cookies[name]).decode('unicode-escape')
+    else:
+        return default_value
 
 def set_cookie(name, value, path='/', max_age=3600, version=1):
     cookie = cherrypy.response.cookie
-    cookie[name] = value
+    cookie[name] = value.encode('unicode-escape')
     cookie[name]['path'] = path
     cookie[name]['max-age'] = max_age
     cookie[name]['version'] = version
-
 
 def delete_cookie(name):
     cherrypy.response.cookie[name] = 'deleting'
