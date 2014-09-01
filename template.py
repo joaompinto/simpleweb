@@ -5,6 +5,7 @@ import time
 import cgi
 import cherrypy
 import urllib
+from simpleweb import controller
 from mako.lookup import TemplateLookup
 
 def set_directories(templates_directories):
@@ -37,7 +38,9 @@ def _(txt):
 def render(template_name, **kwargs):
     global _template_lookup
     mytemplate = _template_lookup.get_template(template_name)
-    # mytemplate = Template(filename=template_name)
+
+    # Global functions
+    kwargs["current_url"] = controller.current_url()
 
     start_t = time.time()
     template_output = mytemplate.render(**kwargs)

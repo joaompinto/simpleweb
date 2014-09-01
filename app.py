@@ -2,6 +2,7 @@ import sys
 import imp
 from os.path import join, dirname, basename
 from glob import glob
+from google.appengine.ext.webapp.util import run_wsgi_app
 
 current_dir = dirname(__file__)
 sys.path.append(join(current_dir, 'simpleweb'))
@@ -26,8 +27,9 @@ application = cherrypy.tree.mount(controller.root, '/')
 template.set_directories([join(current_dir, 'views')])
 
 # Setup static contents directories for file serving
-static_dirs = ['components']
+static_dirs = ['components', 'css']
 for static_dir in static_dirs:
     controller.add_static_dir(application, static_dir, join(current_dir, static_dir))
 
+run_wsgi_app(application)
 

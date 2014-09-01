@@ -24,6 +24,10 @@ def publish(func=None, *args):
     return cherrypy.expose(func, *args)
 
 
+def redirect(url):
+    raise cherrypy.HTTPRedirect(url)
+
+
 def get_cookie(name, default_value=None):
     def unescape(s):
         m = re.match(r'^"(.*)"$', s)
@@ -36,17 +40,28 @@ def get_cookie(name, default_value=None):
 
 def set_cookie(name, value, path='/', max_age=3600, version=1):
     cookie = cherrypy.response.cookie
+    cookie['xpto'] = 12
+    cookie['xpto']['path'] = '/'
+    cookie['xpto']['max-age'] = 9000
     cookie[name] = value.encode('unicode-escape')
     cookie[name]['path'] = path
     cookie[name]['max-age'] = max_age
-    cookie[name]['version'] = version
 
 def delete_cookie(name):
     cherrypy.response.cookie[name] = 'deleting'
     cherrypy.response.cookie[name]['expires'] = 0
 
+
 def method():
     return cherrypy.request.method
 
+
 def params()    :
     return cherrypy.request.params
+
+
+def current_url():
+    """
+    @return: the current request url
+    """
+    return cherrypy.request.base
