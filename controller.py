@@ -16,6 +16,7 @@ def set_default_config():
         , 'tools.encode.errors': 'replace'
     })
 
+
 def quickstart(application):
     cherrypy.quickstart(application)
 
@@ -86,3 +87,7 @@ def controller_url():
     @return: the current request url
     """
     return cherrypy.request.path_info
+
+
+def get_config():
+    return cherrypy.config
