@@ -1,3 +1,4 @@
+## -*- coding: utf-8 -*-
 import imp
 import sys
 
@@ -7,6 +8,13 @@ if not 'cherrypy' in sys.modules:
 
 import re
 root = None
+
+def set_default_config():
+    # Enforce utf8 encoding
+    cherrypy.config.update({'tools.encode.on': True
+        , 'tools.encode.encoding': 'utf-8'
+        , 'tools.encode.errors': 'replace'
+    })
 
 def quickstart(application):
     cherrypy.quickstart(application)
@@ -69,14 +77,12 @@ def method():
     return cherrypy.request.method
 
 
-def params()    :
+def params():
     return cherrypy.request.params
 
 
-def current_url():
+def controller_url():
     """
     @return: the current request url
     """
-    print cherrypy
-    print cherrypy.request.path_info
     return cherrypy.request.path_info

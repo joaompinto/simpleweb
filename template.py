@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import imp
 import sys
 import time
 import cgi
@@ -43,7 +42,7 @@ def render(template_name, **kwargs):
     mytemplate = _template_lookup.get_template(template_name)
 
     # Global functions
-    kwargs["current_url"] = controller.current_url()
+    kwargs["controller_url"] = controller.controller_url()
 
     start_t = time.time()
     template_output = mytemplate.render(**kwargs)

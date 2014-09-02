@@ -18,6 +18,8 @@ class AppServerRoot(object):  # Application Server Root place holder
     def index(self):
         pass
 
+controller.set_default_config()
+
 # Load and setup controllers
 controller.root = AppServerRoot()
 for controller_file in glob(join(current_dir, 'controllers', '*.py')):
