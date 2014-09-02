@@ -1,6 +1,20 @@
-import cherrypy
+import imp
+import sys
+
+if not 'cherrypy' in sys.modules:
+    f, filename, desc = imp.find_module('cherrypy', ['simpleweb'])
+    cherrypy = imp.load_module('cherrypy', f, filename, desc)
+
 import re
 root = None
+
+def quickstart(application):
+    cherrypy.quickstart(application)
+
+
+def application():
+    global root
+    return cherrypy.tree.mount(root, '/')
 
 def add_static_dir(application, static_dir, dir_name):
 
@@ -33,19 +47,18 @@ def get_cookie(name, default_value=None):
         m = re.match(r'^"(.*)"$', s)
         s = m.group(1) if m else s
         return s.replace("\\\\", "\\")
+    print cherrypy.request.cookie
     if cherrypy.request.cookie.has_key(name):
-        return unescape(cherrypy.request.cookies[name]).decode('unicode-escape')
+        return unescape(cherrypy.request.cookie[name].value).decode('unicode-escape')
     else:
         return default_value
 
 def set_cookie(name, value, path='/', max_age=3600, version=1):
     cookie = cherrypy.response.cookie
-    cookie['xpto'] = 12
-    cookie['xpto']['path'] = '/'
-    cookie['xpto']['max-age'] = 9000
     cookie[name] = value.encode('unicode-escape')
     cookie[name]['path'] = path
     cookie[name]['max-age'] = max_age
+    cookie[name]['version'] = version
 
 def delete_cookie(name):
     cherrypy.response.cookie[name] = 'deleting'
@@ -64,4 +77,6 @@ def current_url():
     """
     @return: the current request url
     """
-    return cherrypy.request.base
+    print cherrypy
+    print cherrypy.request.path_info
+    return cherrypy.request.path_info

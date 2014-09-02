@@ -1,12 +1,15 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import imp
+import sys
 import time
 import cgi
-import cherrypy
 import urllib
 from simpleweb import controller
+
+if not 'simpleweb' in sys.path:
+    sys.path.insert(0, 'simpleweb')
 from mako.lookup import TemplateLookup
+sys.path.pop(0)
 
 def set_directories(templates_directories):
     """
@@ -24,7 +27,7 @@ def set_directories(templates_directories):
                                       , output_encoding='utf-8'
                                       , encoding_errors='replace'
                                       , default_filters=['strip_none']
-                                      , imports=['from template import strip_none, html_lines, quote']
+                                      , imports=['from simpleweb.template import strip_none, html_lines, quote']
     )
 
 
