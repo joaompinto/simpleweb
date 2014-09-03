@@ -74,6 +74,10 @@ def delete_cookie(name):
     cherrypy.response.cookie[name]['expires'] = 0
 
 
+def set_response(name, value):
+    cherrypy.response.headers[name] = value
+
+
 def method():
     return cherrypy.request.method
 
@@ -87,6 +91,12 @@ def controller_url():
     @return: the current request url
     """
     return cherrypy.request.path_info
+
+def controller_path():
+    """
+    @return: the current request url
+    """
+    return cherrypy.request.path_info.split('/')
 
 
 def get_config():

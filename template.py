@@ -41,7 +41,8 @@ def render(template_name, **kwargs):
     global _template_lookup
     mytemplate = _template_lookup.get_template(template_name)
 
-    # Global functions
+    # Inject custom helper functions
+    kwargs["controller_path"] = controller.controller_path()
     kwargs["controller_url"] = controller.controller_url()
 
     start_t = time.time()
