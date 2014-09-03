@@ -9,7 +9,10 @@ if not 'cherrypy' in sys.modules:
 import re
 root = None
 
-def set_default_config():
+
+def set_default_config(AppRoot):
+    global root
+    root = AppRoot
     # Enforce utf8 encoding
     cherrypy.config.update({'tools.encode.on': True
         , 'tools.encode.encoding': 'utf-8'
@@ -25,13 +28,7 @@ def application():
     global root
     return cherrypy.tree.mount(root, '/')
 
-def add_static_dir(application, static_dir, dir_name):
 
-    conf = {}
-    conf['/'+static_dir] ={ 'tools.staticdir.dir': dir_name,
-        'tools.staticdir.on': True
-        }
-    application.merge(conf)
 
 
 def attach(controller_path_name, controller_obj,):
