@@ -1,43 +1,25 @@
 ## -*- coding: utf-8 -*-
 import imp
 import sys
+import re
+
+app_root = None
 
 if not 'cherrypy' in sys.modules:
     f, filename, desc = imp.find_module('cherrypy', ['simpleweb'])
     cherrypy = imp.load_module('cherrypy', f, filename, desc)
 
-import re
-root = None
-
-
-def set_default_config(AppRoot):
-    global root
-    root = AppRoot
-    # Enforce utf8 encoding
-    cherrypy.config.update({'tools.encode.on': True
-        , 'tools.encode.encoding': 'utf-8'
-        , 'tools.encode.errors': 'replace'
-    })
-
-
 def quickstart(application):
     cherrypy.quickstart(application)
 
 
-def application():
-    global root
-    return cherrypy.tree.mount(root, '/')
-
-
-
-
 def attach(controller_path_name, controller_obj,):
-    global root
+    global app_root
     controller_path_name = controller_path_name.strip("/")
     if controller_path_name == '':  # No path provided, override the index handler
-        root.index = controller_obj.index
+        app_root.index = controller_obj.index
     else:
-        setattr(root, controller_path_name, controller_obj)
+        setattr(app_root, controller_path_name, controller_obj)
 
 
 def publish(func=None, *args):
