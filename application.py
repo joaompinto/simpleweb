@@ -43,7 +43,6 @@ def load_controllers(controller_dir):
         module_name = 'simpleweb.controllers.'+basename(controller_file)
         imp.load_source(module_name, controller_file)
 
-
 # Setup static file serve handling for 'static' sub-dirs
 def set_static_dirs(static_dir):
     global wsgi_app

@@ -13,7 +13,7 @@ def quickstart(application):
     cherrypy.quickstart(application)
 
 
-def attach(controller_path_name, controller_obj,):
+def attach(controller_path_name, controller_obj):
     global app_root
     controller_path_name = controller_path_name.strip("/")
     if controller_path_name == '':  # No path provided, override the index handler
