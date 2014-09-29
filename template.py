@@ -25,7 +25,7 @@ def set_directories(templates_directories):
                                       , input_encoding='utf-8'
                                       , output_encoding='utf-8'
                                       , encoding_errors='replace'
-                                      , default_filters=['strip_none']
+                                      , default_filters=['strip_none', 'h']
                                       , imports=['from simpleweb.template import strip_none, html_lines, quote']
     )
 
