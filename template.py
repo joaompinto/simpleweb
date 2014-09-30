@@ -8,6 +8,7 @@ from simpleweb import controller
 if not 'simpleweb' in sys.path:
     sys.path.insert(0, 'simpleweb')
 from mako.lookup import TemplateLookup
+from dominate.tags import *
 sys.path.pop(0)
 
 def set_directories(templates_directories):
@@ -30,18 +31,36 @@ def set_directories(templates_directories):
     )
 
 
-""" TODO: Translation using gettext """
+def FormBuild(orientation, form_items):
+    new_form = form(role='form', method='post')
+    with new_form:
+        for item in form_items:
+            with div(_class= "form-group row"):
+                with div(_class= "col-xs-%i" % item['view_size']):
+                    if item['type'] == 'submit':
+                        button(item['label'], type='submit', _class="btn btn-default")
+                    else:
+                        if 'label' in item.keys():
+                            label(item['label'])
+                        kwargs = {'_class': 'form-control'}
+                        args = ['type', 'name', 'placeholder']
+                        if 'required' in item.keys():
+                            args.append('required')
+                        for kw in args:
+                            kwargs[kw] = item[kw]
+                        input(**kwargs)
 
-
-def _(txt):
-    return txt
-
+    return str(new_form)  # Explicitely convert to str because of the mako filtering
 
 def render(template_name, **kwargs):
     global _template_lookup
     mytemplate = _template_lookup.get_template(template_name)
 
-    # Inject custom helper functions
+    # Inject herlper functions
+
+    kwargs["FormBuild"] = FormBuild
+
+    # Inject custom helper variables
     kwargs["controller_path"] = controller.controller_path()
     kwargs["controller_url"] = controller.controller_url()
 

@@ -354,24 +354,26 @@ Message: %(error_msg)s
         username = sess.get(self.session_key)
         if not username:
             sess[self.session_key] = username = self.anonymous()
-            if self.debug:
-                cherrypy.log(
-                    'No session[username], trying anonymous', 'TOOLS.SESSAUTH')
+            self._debug_message('No session[username], trying anonymous')
         if not username:
             url = cherrypy.url(qs=request.query_string)
-            if self.debug:
-                cherrypy.log('No username, routing to login_screen with '
-                             'from_page %r' % url, 'TOOLS.SESSAUTH')
+            self._debug_message(
+                'No username, routing to login_screen with from_page %(url)r',
+                locals(),
+            )
             response.body = self.login_screen(url)
             if "Content-Length" in response.headers:
                 # Delete Content-Length header so finalize() recalcs it.
                 del response.headers["Content-Length"]
             return True
-        if self.debug:
-            cherrypy.log('Setting request.login to %r' %
-                         username, 'TOOLS.SESSAUTH')
+        self._debug_message('Setting request.login to %(username)r', locals())
         request.login = username
         self.on_check(username)
+
+    def _debug_message(self, template, context={}):
+        if not self.debug:
+            return
+        cherrypy.log(template % context, 'TOOLS.SESSAUTH')
 
     def run(self):
         request = cherrypy.serving.request
@@ -379,31 +381,24 @@ Message: %(error_msg)s
 
         path = request.path_info
         if path.endswith('login_screen'):
-            if self.debug:
-                cherrypy.log('routing %r to login_screen' %
-                             path, 'TOOLS.SESSAUTH')
-            return self.login_screen(**request.params)
+            self._debug_message('routing %(path)r to login_screen', locals())
+            response.body = self.login_screen()
+            return True
         elif path.endswith('do_login'):
             if request.method != 'POST':
                 response.headers['Allow'] = "POST"
-                if self.debug:
-                    cherrypy.log('do_login requires POST', 'TOOLS.SESSAUTH')
+                self._debug_message('do_login requires POST')
                 raise cherrypy.HTTPError(405)
-            if self.debug:
-                cherrypy.log('routing %r to do_login' % path, 'TOOLS.SESSAUTH')
+            self._debug_message('routing %(path)r to do_login', locals())
             return self.do_login(**request.params)
         elif path.endswith('do_logout'):
             if request.method != 'POST':
                 response.headers['Allow'] = "POST"
                 raise cherrypy.HTTPError(405)
-            if self.debug:
-                cherrypy.log('routing %r to do_logout' %
-                             path, 'TOOLS.SESSAUTH')
+            self._debug_message('routing %(path)r to do_logout', locals())
             return self.do_logout(**request.params)
         else:
-            if self.debug:
-                cherrypy.log('No special path, running do_check',
-                             'TOOLS.SESSAUTH')
+            self._debug_message('No special path, running do_check')
             return self.do_check()
 
 
