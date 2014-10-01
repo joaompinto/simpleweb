@@ -3,6 +3,7 @@ import sys
 import time
 import cgi
 import urllib
+from xml.dom.minidom import parseString
 from simpleweb import controller
 
 if not 'simpleweb' in sys.path:
@@ -26,39 +27,41 @@ def set_directories(templates_directories):
                                       , input_encoding='utf-8'
                                       , output_encoding='utf-8'
                                       , encoding_errors='replace'
+                                      , strict_undefined=True
                                       , default_filters=['strip_none', 'h']
                                       , imports=['from simpleweb.template import strip_none, html_lines, quote']
     )
 
-
-def FormBuild(orientation, form_items):
+def build_simple_form(form_xml):
+    dom = parseString(form_xml)
+    assert dom.documentElement.tagName == "simpleform"
     new_form = form(role='form', method='post')
     with new_form:
-        for item in form_items:
-            with div(_class= "form-group row"):
-                with div(_class= "col-xs-%i" % item['view_size']):
-                    if item['type'] == 'submit':
-                        button(item['label'], type='submit', _class="btn btn-default")
+        for element in dom.getElementsByTagName('input'):
+            with div(_class="form-group row"):
+                with div(_class="col-xs-%i" % int(element.getAttribute('view_size'))):
+                    if element.getAttribute('type') == "submit":
+                        button(element.getAttribute('label'))
                     else:
-                        if 'label' in item.keys():
-                            label(item['label'])
-                        kwargs = {'_class': 'form-control'}
-                        args = ['type', 'name', 'placeholder']
-                        if 'required' in item.keys():
-                            args.append('required')
-                        for kw in args:
-                            kwargs[kw] = item[kw]
-                        input(**kwargs)
+                        if element.getAttribute('label'):
+                            label(element.getAttribute('label'))
+                            kwargs = {'_class': 'form-control'}
+                            args = ['type', 'name', 'placeholder']
+                            if element.getAttribute('required') == "1":
+                                args.append('required')
+                            for kw in args:
+                                kwargs[kw] = element.getAttribute(kw)
+                            input(**kwargs)
+    return unicode(new_form)
 
-    return str(new_form)  # Explicitely convert to str because of the mako filtering
 
 def render(template_name, **kwargs):
     global _template_lookup
+
     mytemplate = _template_lookup.get_template(template_name)
 
     # Inject herlper functions
-
-    kwargs["FormBuild"] = FormBuild
+    kwargs['build_simple_form'] = build_simple_form
 
     # Inject custom helper variables
     kwargs["controller_path"] = controller.controller_path()
